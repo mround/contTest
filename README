@@ -1,0 +1,6 @@
+Sample project for testing continious intergration techniques.
+
+supporting :-
+phpunit
+php_codeSniffer
+git
