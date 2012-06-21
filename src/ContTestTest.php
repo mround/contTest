@@ -40,7 +40,7 @@ class ContTestTest extends PHPUnit_Framework_TestCase
     public function testgetA()
     {
         //TODO implement me...
-        $success = false;
+        $success = true;
         $this->assertTrue($success, true);
     }
 

@@ -29,7 +29,7 @@
     </target>
 
 	<!-- git pull -->
-	<target name="pullFromGit" description="Pulls the project from the git repository." depends="prep" >
+	<target name="checkout" description="Pulls the project from the git repository." depends="prep" >
 		<exec dir="${basedir}" executable="git" failonerror="true" >
 			<arg line=" pull origin ${gitBranch}" />
 		</exec>
@@ -37,7 +37,7 @@
 
 
 	<!-- php_codesniffer -->
-	<target name="checkStandards" description="Uses php code sniffer to check for coding standards." depends="pullFromGit" >
+	<target name="php-codesniffer" description="Uses php code sniffer to check for coding standards." depends="checkout" >
 		<exec dir="${basedir}" executable="/usr/bin/phpcs" failonerror="true" >
 			<arg line="--report=xml  --report-summary=${logs}/${ant.project.name}.phpcs.xml ${src}" />
 		</exec>
@@ -45,7 +45,7 @@
 
 
 	<!-- PHPUnit -->
-	<target name="runUnitTests" description="Runs the unit tests." depends="checkStandards" >
+	<target name="phpunit" description="Runs the unit tests." depends="php-codesniffer" >
 		<exec dir="${basedir}" executable="/usr/bin/phpunit" failonerror="true" >
 			<arg line=" --log-junit ${logs}/${ant.project.name}.phpunit.xml ./" />
 		</exec>
@@ -53,7 +53,7 @@
 
 
 	<!-- Generate Documentation -->
-	<target name="generateDocs" description="Generates developer documenation taken from doc blocks." depends="runUnitTests">
+	<target name="php-documentor" description="Generates developer documenation taken from doc blocks." depends="phpunit">
 		<exec dir="${basedir}" executable="docblox" failonerror="true" >
 			<arg line="-d ${basdir}/${src} -t ${basedir}/${doc}" />
 		</exec>
@@ -62,12 +62,15 @@
 		</exec>
 	</target>
 
+	<!-- deploy documentation -->
 
 	<!-- deploys to staging environment -->
-	<target name="deployToStaging" description="Deploys over to the staging environment via scp" depends="generateDocs">
+	<target name="deployToStaging" description="Deploys over to the staging environment via scp" depends="php-documentor">
 		<scp remoteToDir="${scpUser}@${stagingUrl}:${stagingDir}" keyfile="${scpPrivateKey}" trust="yes">
 			<fileset dir="${src}" />
 		</scp>
 	</target>
+
+
 
 </project>
