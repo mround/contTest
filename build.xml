@@ -1,16 +1,20 @@
 <?xml version="1.0"?>
+
 <!-- Test ant file for common tasks for PHP -->
-<project name="contTest" default="dist" basedir=".">
+<!-- By Matthew Round -->
+
+<project name="contTest" default="deployToStaging" basedir=".">
 
 	<description>Continuous Intergration test build file </description>
 
 	<property name="src" location="${basedir}/src" />
 	<property name="doc" location="${basedir}/doc" />
 	<property name="logs" location="${basedir}/logs" />
-	<property name="stagingDir" location="/path/to/deployment/dir/on/staging" />
-	<property name="stagingUrl" location="ip.ip.ip.ip" />
-	<property name="scpPrivateKey" location="/location/to/privatekey" />
-	<property name="scpUser" location="stagingUser" />
+	<property name="stagingDir" location="/WEBROOT/" />
+	<property name="stagingUrl" value="fmts-stagingDevWebTest-01" />
+	<property name="scpPrivateKey" location="/home/roundyz/.ssh/id_dsa" />
+	<property name="scpUser" value="fmadmin" />
+	<property name="gitBranch" value="master" />
 	
 	<!-- clean up -->
 	<target name="clean" description="clean up" >
@@ -18,11 +22,18 @@
     	<delete dir="${logs}" />
     </target>
 
-
+	<!-- Prepares directories etc -->
 	<target name="prep" description="Prepares directories etc" depends="clean">
 		<mkdir dir="${doc}" />
 		<mkdir dir="${logs}" />
     </target>
+
+	<!-- git pull -->
+	<target name="pullFromGit" description="Pulls the project from the git repository." depends="prep" >
+		<exec dir="${basedir}" executable="git" failonerror="true" >
+			<arg line=" pull origin ${gitBranch}" />
+		</exec>
+	</target>
 
 
 	<!-- php_codesniffer -->
@@ -30,12 +41,6 @@
 		<exec dir="${basedir}" executable="/usr/bin/phpcs" failonerror="true" >
 			<arg line="--report=xml  --report-summary=${logs}/${ant.project.name}.phpcs.xml ${src}" />
 		</exec>
-	</target>
-
-
-	<!-- git pull -->
-	<target name="pullFromGit" description="Pulls the project from the git repository." depends="prep" >
-	<!-- TODO add git pull origin -->
 	</target>
 
 
@@ -59,9 +64,9 @@
 
 
 	<!-- deploys to staging environment -->
-	<target name="deployToStaging" description="Deploys over to the staging environment via scp">
-		<scp remoteToDir="${scpUser}@${stagingUrl}:${stagingDir}" keyfile="${scpPrivateKey}">
-			<fileset dir="$src" />
+	<target name="deployToStaging" description="Deploys over to the staging environment via scp" depends="generateDocs">
+		<scp remoteToDir="${scpUser}@${stagingUrl}:${stagingDir}" keyfile="${scpPrivateKey}" trust="yes">
+			<fileset dir="${src}" />
 		</scp>
 	</target>
 
