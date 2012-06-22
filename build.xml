@@ -55,7 +55,7 @@
 	<!-- Generate Documentation -->
 	<target name="php-documentor" description="Generates developer documenation taken from doc blocks." depends="prep">
 		<exec executable="docblox" failonerror="true" >
-			<arg line="run --title ${ant.project.name} -d ${basedir}/${src} -t ${basedir}/${doc}" />
+			<arg line="run --title ${ant.project.name} -d ${src} -t ${doc}" />
 		</exec>
 	</target>
 
