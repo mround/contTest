@@ -47,7 +47,7 @@
 	<!-- PHPUnit -->
 	<target name="phpunit" description="Runs the unit tests."  >
 		<exec dir="${basedir}" executable="/usr/bin/phpunit" failonerror="true" >
-			<arg line=" --log-xml ${logs}/${ant.project.name}.phpunit.xml ./" />
+			<arg line=" --log-xml ${logs}/${ant.project.name}.phpunit.xml ${src}" />
 		</exec>
 	</target>
 
