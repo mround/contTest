@@ -3,7 +3,7 @@
 <!-- Test ant file for common tasks for PHP -->
 <!-- By Matthew Round -->
 
-<project name="contTest" default="deployToStaging" basedir=".">
+<project name="contTest" default="build" basedir=".">
 
 	<description>Continuous Intergration test build file </description>
 
@@ -23,13 +23,13 @@
     </target>
 
 	<!-- Prepares directories etc -->
-	<target name="prep" description="Prepares directories etc" depends="clean">
+	<target name="prep" description="Prepares directories etc">
 		<mkdir dir="${doc}" />
 		<mkdir dir="${logs}" />
     </target>
 
 	<!-- git pull -->
-	<target name="checkout" description="Pulls the project from the git repository." depends="prep" >
+	<target name="checkout" description="Pulls the project from the git repository.">
 		<exec dir="${basedir}" executable="git" failonerror="true" >
 			<arg line=" pull origin ${gitBranch}" />
 		</exec>
@@ -37,7 +37,7 @@
 
 
 	<!-- php_codesniffer -->
-	<target name="php-codesniffer" description="Uses php code sniffer to check for coding standards." depends="checkout" >
+	<target name="php-codesniffer" description="Uses php code sniffer to check for coding standards." >
 		<exec dir="${basedir}" executable="/usr/bin/phpcs" failonerror="true" >
 			<arg line="--report=xml  --report-summary=${logs}/${ant.project.name}.phpcs.xml ${src}" />
 		</exec>
@@ -45,17 +45,17 @@
 
 
 	<!-- PHPUnit -->
-	<target name="phpunit" description="Runs the unit tests." depends="php-codesniffer" >
+	<target name="phpunit" description="Runs the unit tests."  >
 		<exec dir="${basedir}" executable="/usr/bin/phpunit" failonerror="true" >
-			<arg line=" --log-junit ${logs}/${ant.project.name}.phpunit.xml ./" />
+			<arg line=" --log-xml ${logs}/${ant.project.name}.phpunit.xml ./" />
 		</exec>
 	</target>
 
 
 	<!-- Generate Documentation -->
-	<target name="php-documentor" description="Generates developer documenation taken from doc blocks." depends="phpunit">
+	<target name="php-documentor" description="Generates developer documenation taken from doc blocks." depends="prep">
 		<exec dir="${basedir}" executable="docblox" failonerror="true" >
-			<arg line="-d ${basdir}/${src} -t ${basedir}/${doc}" />
+			<arg line=" -d ${basdir}/${src} -t ${basedir}/${doc}" />
 		</exec>
 		<exec dir="${basedir}/${src}" executable="docblox" failonerror="true" >
 			<arg line="--template new_black -d ${basdir}/${src} -t ${basedir}/${doc}" />
@@ -65,12 +65,13 @@
 	<!-- deploy documentation -->
 
 	<!-- deploys to staging environment -->
-	<target name="deployToStaging" description="Deploys over to the staging environment via scp" depends="php-documentor">
+	<target name="deployToStaging" description="Deploys over to the staging environment via scp" >
 		<scp remoteToDir="${scpUser}@${stagingUrl}:${stagingDir}" keyfile="${scpPrivateKey}" trust="yes">
 			<fileset dir="${src}" />
 		</scp>
 	</target>
 
 
+	<target name="build" description="runs through tasks" depends="checkout,php-documentor,php-codesniffer,phpunit" />
 
 </project>
