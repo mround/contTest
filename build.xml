@@ -58,7 +58,7 @@
 			<arg line=" -d ${basdir}/${src} -t ${basedir}/${doc}" />
 		</exec>
 		<exec dir="${basedir}/${src}" executable="docblox" failonerror="true" >
-			<arg line="--template new_black -d ${basdir}/${src} -t ${basedir}/${doc}" />
+			<arg line="run --title ${ant.project.name} -d ${basdir}/${src} -t ${basedir}/${doc}" />
 		</exec>
 	</target>
 
