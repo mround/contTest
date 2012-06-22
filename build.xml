@@ -69,6 +69,12 @@
 	</target>
 
 
-	<target name="build" description="runs through tasks" depends="clean,prep,checkout,php-documentor,php-codesniffer,phpunit" />
+	<target name="build" description="runs through tasks" 
+	depends="
+	clean,prep,checkout,
+	php-codesniffer,
+	phpunit,
+	php-documentor
+	" />
 
 </project>
